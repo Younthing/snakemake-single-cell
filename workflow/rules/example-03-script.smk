@@ -1,4 +1,4 @@
-rule process_data:
+rule run_script_py:
     output:
         "results/python_output.txt",
     params:
@@ -7,16 +7,18 @@ rule process_data:
         "../scripts/script1.py"
 
 
-rule analyze_data:
+rule run_script_R:
     output:
-        "results/r_output.txt",
+        "results/example/R.txt",  # 输出文件
     params:
-        param="Hello from R",
+        param1="Hello",
+        param2="World",
+    threads: 1
     script:
         "../scripts/script2.R"
 
 
-rule process_data_wrapper:
+rule run_script_wrapper:
     output:
         "results/example/wrapper.txt",
     params:
