@@ -1,0 +1,3 @@
+input_dir: "data"
+adata_raw: "adata_raw.h5ad"
+output_dir: "results"
