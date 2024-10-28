@@ -1,3 +1,24 @@
 input_dir: "data"
-adata_raw: "adata_raw.h5ad"
 output_dir: "results"
+figure_dir: "figures"
+table_dir: "table"
+
+env:
+  conda: "lang"
+
+qc:
+  input_file: "adata_raw.h5ad"
+  mad_general: 5
+  mad_mt: 3
+  mt_threshold: 20
+  output_file: "anndata_qc.h5ad"
+
+doublet_removal:
+  input_file: "anndata_qc.h5ad"
+  output_file: "anndata_scrublet.h5ad"
+  random_state: 123
+  batch_key: "batch"
+
+normalization:
+  input_file: "anndata_scrublet.h5ad"
+  output_file: "anndata_normalization.h5ad"
