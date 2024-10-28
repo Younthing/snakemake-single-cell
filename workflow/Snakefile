@@ -1,7 +1,8 @@
 include: "rules/module1.smk"
 include: "rules/module2.smk"
 
+
 # Set a default target
 rule all:
     input:
-        "results/outputs.txt"
+        "results/outputs.txt",
