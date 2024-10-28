@@ -1,7 +1,7 @@
-include: "rules/module1.smk"
-include: "rules/module2.smk"
+include: "rules/example-01-base.smk"
+include: "rules/example-02-notebook.smk"
+include: "rules/example-03-script.smk"
 
-include: "rules/module3-example-py.smk"
 
 # 设置默认目标
 # 这确保了在运行 `snakemake` 时，如果没有指定目标，

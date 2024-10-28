@@ -1,11 +1,7 @@
-# Python script to print "Hello Python"
-import os
-import sys
+def main(param, output_file):
+    with open(output_file, "w") as f:
+        f.write(f"Python parameter: {param}\n")
 
-# Ensure the directory exists
-os.makedirs("results", exist_ok=True)
 
-output_file = sys.argv[1]
-
-with open(output_file, "w") as f:
-    f.write("Hello Python\n")
+if __name__ == "__main__":
+    main(snakemake.params.param, snakemake.output[0])

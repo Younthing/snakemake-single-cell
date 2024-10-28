@@ -1,0 +1,6 @@
+name: tool1-env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.8

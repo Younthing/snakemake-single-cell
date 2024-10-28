@@ -1,0 +1,6 @@
+paths:
+  output_dir: "results/example"
+parameters:
+  message: "Hello from config!"
+  threads: 4
+  sample_list: ["sample1", "sample2", "sample3"]
