@@ -1,1 +1,2 @@
 include: "rules/module1.smk"
+include: "rules/module2.smk"

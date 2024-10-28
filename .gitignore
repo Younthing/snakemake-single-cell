@@ -1,10 +1,13 @@
 .aider*
 .env
-
+**/.snakemake/**
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+results
+input
+resources
 
 # C extensions
 *.so
