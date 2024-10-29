@@ -1,24 +1,40 @@
+# 基础目录配置
 input_dir: "data"
 output_dir: "results"
 figure_dir: "figures"
 table_dir: "table"
 
+# 环境配置
 env:
   conda: "lang"
 
-qc:
-  input_file: "adata_raw.h5ad"
-  mad_general: 5
-  mad_mt: 3
-  mt_threshold: 20
-  output_file: "anndata_qc.h5ad"
+# 质量控制参数
+quality_control:
+  input_file: "adata_raw.h5ad" # 初始输入文件
 
+  mad_general: 5 # 一般特征的MAD阈值，双端
+  mad_mt: 3 # 线粒体基因的MAD阈值，单端
+  mt_threshold: 20 # 线粒体基因比例阈值(%)
+
+# 双细胞去除参数
 doublet_removal:
-  input_file: "anndata_qc.h5ad"
-  output_file: "anndata_scrublet.h5ad"
-  random_state: 123
-  batch_key: "batch"
+  random_state: 123 # 随机数种子,保证结果可重复
+  batch_key: "batch" # 批次信息列名
 
+# 标准化参数
 normalization:
-  input_file: "anndata_scrublet.h5ad"
-  output_file: "anndata_normalization.h5ad"
+
+# 高变基因识别参数
+find_hvg:
+  n_top_genes: 2000 # 选择的高变基因数量
+  batch_key: "batch" # 批次信息列名
+
+batch_removal:
+  batch_key: "batch"
+  covariate_keys:
+    - "group" # yaml的数组语法
+  n_top_pcs: 10 # just for harmony
+  n_neighbors: 15
+  methods:
+    - scvi
+    - harmony
