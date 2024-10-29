@@ -1,0 +1,17 @@
+samples:
+  - sample1
+  - sample2
+
+parameters:
+  n_top_genes:
+    - 500
+    - 1000
+    - 2000
+  mt_threshold:
+    - 0.1
+    - 0.2
+
+input_dir: "data/input"
+output_dir: "data/output"
+env:
+  conda: "envs/myenv.yaml"
