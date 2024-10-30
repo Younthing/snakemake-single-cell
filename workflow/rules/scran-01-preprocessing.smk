@@ -251,8 +251,8 @@ rule cell_annotation:
         table_dir=TABLE_DIR,
         # 注释相关参数
         anno_type=lambda wildcards: wildcards.anno_type,
-        method=lambda wildcards: wildcards.method,
-        plot_params=config["cell_annotation"]["plot_params"]
+        method=lambda wildcards: wildcards.anno_type,
+        plot_params=config["cell_annotation"]["plot_params"],
     log:
         get_log_path("cell_annotation_{method}_{anno_type}.log"),
     conda:
@@ -263,11 +263,46 @@ rule cell_annotation:
         "../scripts/single_cell_07_annotation.py"
 
 
-rule all:
+rule find_markers:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "find_markers", "anndata_find_markers_{group_by}_{method}_{anno_type}.h5ad"
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=FIGURE_DIR,
+        table_dir=TABLE_DIR,
+        plot_params=config["cell_annotation"]["plot_params"],
+        test_method=config["find_markers"]["test_methods"],
+        group_by=lambda wildcards: wildcards.group_by,
+    log:
+        get_log_path("find_markers_{method}_{anno_type}_{group_by}.log"),
+    conda:
+        config["env"]["conda"]
+    benchmark:
+        get_benchmark_path("find_markers_{method}_{anno_type}_{group_by}.txt")
+    script:
+        "../scripts/single_cell_08_find_markers.py"
+
+
+# expand 是生成所有可能的参数组合，笛卡尔积
+rule preprocessing:
     input:
         # 包含所有批次效应去除方法和注释方法的组合
         expand(
-            "results/anndata_annotation_{method}_{anno_type}.h5ad",
+            "results/find_markers/anndata_find_markers_{group_by}_{method}_{anno_type}.h5ad",
             method=config["batch_removal"]["methods"],
             anno_type=config["cell_annotation"]["anno_type"],
+            group_by=config["cell_annotation"]["anno_type"] + ["leiden_0_25"],
         ),
+
+
+#  group_by=[
+#                 f"leiden_{str(res).replace('.', '_')}"
+#                 for res in config["cluster"]["leiden"]["resolutions"]
+#             ]
+#             + config["cell_annotation"]["anno_type"],

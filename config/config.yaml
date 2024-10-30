@@ -65,5 +65,16 @@ cell_annotation:
     # vmin: "p05"
     # cmap: "bwr"
     ncols: 2
+    wspace: 0.5
+    # legend_loc: "on data"
+
+find_markers:
+  test_methods: t-test
+  group_key: "leiden_0_25"
+  plot_params:
+    # vmax: "p90"
+    # vmin: "p05"
+    # cmap: "bwr"
+    ncols: 2
     wspace: 0.2
     # legend_loc: "on data"

@@ -80,12 +80,8 @@ adata.obs["celltypist_cell_label_fine"] = adata.obs[
 # Visualize results
 
 default_plot_params = {
-    "vmax": "p90",
-    "vmin": "p10",
-    "cmap": "bwr",
     "ncols": 3,
     "wspace": 0.2,
-    "legend_loc": "on data",
 }
 if plot_params is None:
     plot_params = {}
