@@ -86,7 +86,7 @@ adata_batch.obsm["X_pca"] = adata_batch.obsm["X_pca_harmony"]
 sc.pp.neighbors(adata_batch, n_neighbors=n_neighbors, n_pcs=n_top_pcs, random_state=123)
 sc.tl.leiden(adata_batch, random_state=123)
 sc.tl.umap(adata_batch, random_state=123)  # tsne可以指定use_rep，umap不可以
-sc.tl.tsne(adata_batch, use_rep="X_pca", random_state=123)
+# sc.tl.tsne(adata_batch, use_rep="X_pca", random_state=123)
 
 # %%
 ## 5.4.4 降维聚类可视化批次效应
@@ -105,13 +105,13 @@ sc.pl.pca(
 shutil.move(f"{figure_dir}/pca.pdf", f"{figure_dir}/05-harmony-pca.pdf")
 
 
-sc.pl.tsne(
-    adata_batch,
-    color=["leiden"] + [batch_key] + covariate_keys,
-    save=".pdf",
-)
+# sc.pl.tsne(
+#     adata_batch,
+#     color=["leiden"] + [batch_key] + covariate_keys,
+#     save=".pdf",
+# )
 
-shutil.move(f"{figure_dir}/tsne.pdf", f"{figure_dir}/05-harmony-tsne.pdf")
+# shutil.move(f"{figure_dir}/tsne.pdf", f"{figure_dir}/05-harmony-tsne.pdf")
 
 adata = adata_batch.copy()
 adata.write(output_file, compression="gzip")  # type: ignore

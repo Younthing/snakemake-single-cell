@@ -84,7 +84,7 @@ sc.pp.neighbors(
 )  # TODO，后面都用scVI，也可以直接把PCA替换成scVI
 sc.tl.leiden(adata_batch, random_state=123)
 sc.tl.umap(adata_batch, random_state=123)
-sc.tl.tsne(adata_batch, use_rep="X_scVI", random_state=123)
+# sc.tl.tsne(adata_batch, use_rep="X_scVI", random_state=123)
 
 # %%
 ## 5.4.3 降维聚类可视化批次效应
@@ -102,8 +102,8 @@ sc.pl.pca(
 )
 shutil.move(f"{figure_dir}/pca.pdf", f"{figure_dir}/05-scvi-pca.pdf")
 
-sc.pl.tsne(adata_batch, color=["leiden", batch_key] + covariate_keys, save=".pdf")
-shutil.move(f"{figure_dir}/tsne.pdf", f"{figure_dir}/05-scvi-tsne.pdf")
+# sc.pl.tsne(adata_batch, color=["leiden", batch_key] + covariate_keys, save=".pdf")
+# shutil.move(f"{figure_dir}/tsne.pdf", f"{figure_dir}/05-scvi-tsne.pdf")
 
 
 adata_batch.write(output_file, compression="gzip")  # type: ignore

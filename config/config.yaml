@@ -38,3 +38,21 @@ batch_removal:
   methods:
     - scvi
     - harmony
+
+cluster:
+  # 聚类参数
+  leiden:
+    n_neighbors: 15
+    resolutions: [0.25, 0.5, 1, 2] # 每多一个耗时多一倍
+
+  # 基因预览
+  species: "human" # 可选: "human", "mouse", "rat"
+
+  # 可视化参数
+  plot_params:
+    vmax: "p90"
+    vmin: "p05"
+    cmap: "bwr"
+    ncols: 3
+    wspace: 0.2
+    legend_loc: "on data"

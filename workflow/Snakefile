@@ -6,4 +6,5 @@ include: "rules/scran-01-preprocessing.smk"
 # 它将尝试构建指定的默认目标，从而触发必要的规则以生成所需的输出。
 rule all_real:
     input:
-        "results/outputs.txt",
+        "results/anndata_batch_scvi.h5ad",
+        "results/anndata_batch_harmony.h5ad",

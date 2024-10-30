@@ -189,10 +189,6 @@ rule find_hvg:
         "../notebooks/04-高变基因.ipynb"
 
 
-# 批次效应去除方法列表
-batch_methods = config["batch_removal"]["methods"]
-
-
 # 批次效应去除规则
 rule batch_removal:
     input:
@@ -216,7 +212,49 @@ rule batch_removal:
         "../scripts/single_cell_05_batch_removal_{wildcards.method}.py"  # 不需要使用format,也不能使用lamada
 
 
-# 规则入口，指定最终的目标文件
-rule all:
+# 批次效应去除方法列表
+batch_methods = config["batch_removal"]["methods"]
+
+
+rule cluster:
+    input:
+        adata="results/anndata_batch_{method}.h5ad",
+    output:
+        adata="results/anndata_cluster_{method}.h5ad",
+    params:
+        figure_dir=FIGURE_DIR,
+        table_dir=TABLE_DIR,
+        method=lambda wildcards: wildcards.method,
+        # 聚类参数
+        n_neighbors=config["cluster"]["leiden"]["n_neighbors"],
+        resolutions=config["cluster"]["leiden"]["resolutions"],
+        # 物种和marker基因
+        species=config["cluster"]["species"],
+        # 可视化参数
+        plot_params=config["cluster"]["plot_params"],
+    log:
+        "logs/cluster_{method}.log",
+    conda:
+        config["env"]["conda"]
+    benchmark:
+        "benchmarks/cluster_{method}.txt"
+    script:
+        "../scripts/single_cell_06_cluster.py"
+
+
+# 合并所有批次效应去除方法的聚类结果
+rule all_clusters:
+    input:
+        expand(
+            "results/anndata_cluster_{method}.h5ad",
+            method=config["batch_removal"]["methods"],
+        ),
+
+
+rule cell_annotation:
     input:
         expand(get_output_path("anndata_batch_{method}.h5ad"), method=batch_methods),
+    output:
+        expand(get_output_path("anndata_annot_{method}.h5ad"), method=batch_methods),
+    params:
+        figure_dir=FIGURE_DIR,
