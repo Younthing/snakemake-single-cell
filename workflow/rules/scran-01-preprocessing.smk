@@ -213,14 +213,13 @@ rule batch_removal:
 
 
 # 批次效应去除方法列表
-batch_methods = config["batch_removal"]["methods"]
 
 
 rule cluster:
     input:
-        adata="results/anndata_batch_{method}.h5ad",
+        adata=rules.batch_removal.output.adata,
     output:
-        adata="results/anndata_cluster_{method}.h5ad",
+        adata=get_output_path("anndata_cluster_{method}.h5ad"),
     params:
         figure_dir=FIGURE_DIR,
         table_dir=TABLE_DIR,
@@ -233,28 +232,42 @@ rule cluster:
         # 可视化参数
         plot_params=config["cluster"]["plot_params"],
     log:
-        "logs/cluster_{method}.log",
+        get_log_path("cluster_{method}.log"),
     conda:
         config["env"]["conda"]
     benchmark:
-        "benchmarks/cluster_{method}.txt"
+        get_benchmark_path("cluster_{method}.txt")
     script:
         "../scripts/single_cell_06_cluster.py"
 
 
-# 合并所有批次效应去除方法的聚类结果
-rule all_clusters:
-    input:
-        expand(
-            "results/anndata_cluster_{method}.h5ad",
-            method=config["batch_removal"]["methods"],
-        ),
-
-
 rule cell_annotation:
     input:
-        expand(get_output_path("anndata_batch_{method}.h5ad"), method=batch_methods),
+        adata=rules.cluster.output.adata,
     output:
-        expand(get_output_path("anndata_annot_{method}.h5ad"), method=batch_methods),
+        adata=get_output_path("anndata_annotation_{method}_{anno_type}.h5ad"),
     params:
         figure_dir=FIGURE_DIR,
+        table_dir=TABLE_DIR,
+        # 注释相关参数
+        anno_type=lambda wildcards: wildcards.anno_type,
+        method=lambda wildcards: wildcards.method,
+        plot_params=config["cell_annotation"]["plot_params"]
+    log:
+        get_log_path("cell_annotation_{method}_{anno_type}.log"),
+    conda:
+        config["env"]["conda"]
+    benchmark:
+        get_benchmark_path("cell_annotation_{method}_{anno_type}.txt")
+    script:
+        "../scripts/single_cell_07_annotation.py"
+
+
+rule all:
+    input:
+        # 包含所有批次效应去除方法和注释方法的组合
+        expand(
+            "results/anndata_annotation_{method}_{anno_type}.h5ad",
+            method=config["batch_removal"]["methods"],
+            anno_type=config["cell_annotation"]["anno_type"],
+        ),

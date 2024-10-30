@@ -114,12 +114,9 @@ def perform_leiden_clustering(
             species, ["gene"]
         )  # 默认值不存在返回gene
 
-    # 可视化leiden聚类结果和marker基因表达
-    visualization_keys = leiden_keys + marker_genes  # 使用前两个分辨率的聚类结果
-
     sc.pl.umap(
         adata,
-        color=visualization_keys,
+        color=marker_genes,
         use_raw=True,
         **plot_params,
         save=f"{method}.pdf",

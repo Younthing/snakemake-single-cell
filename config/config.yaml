@@ -56,3 +56,14 @@ cluster:
     ncols: 3
     wspace: 0.2
     legend_loc: "on data"
+
+cell_annotation:
+  anno_type:
+    - celltypist
+  plot_params:
+    # vmax: "p90"
+    # vmin: "p05"
+    # cmap: "bwr"
+    ncols: 2
+    wspace: 0.2
+    # legend_loc: "on data"
