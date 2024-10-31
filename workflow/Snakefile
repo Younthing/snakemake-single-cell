@@ -1,4 +1,5 @@
-include: "rules/scran-01-preprocessing.smk"
+# include: "rules/scran-01-preprocessing.smk"
+include: "rules/scran-02-batch.smk"
 
 
 # 设置默认目标

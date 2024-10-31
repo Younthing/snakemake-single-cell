@@ -1,3 +1,18 @@
+input_file_list:
+  # 批量分析使用文件基本名作为样本名
+  - "data/adata_raw.h5ad" # 批量模式初始输入文件
+
+samples:
+  adata_raw:
+    control_label: "CNL"
+    treatment_label: "CCL"
+  sample2:
+    control_label: "CNL_2"
+    treatment_label: "TMT_2"
+  sample3:
+    control_label: "CNL_3"
+    treatment_label: "TMT_3"
+
 # 基础目录配置
 input_dir: "data"
 output_dir: "results"
@@ -7,8 +22,6 @@ condition_column: "group" # 分组信息列名
 sample_group_column: "patients_organ" # 样本信息列名
 ctrol_column: "CNL" # 对照组列名
 treat_column: "CCL" # 处理组列名
-input_file_list:
-  - "data/adata_raw.h5ad" # 初始输入文件
 
 # 环境配置
 env:

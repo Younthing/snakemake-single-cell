@@ -3,9 +3,11 @@
 **/.snakemake/**
 # Byte-compiled / optimized / DLL files
 __pycache__/
+cache/
 *.py[cod]
 *$py.class
 results
+**/benchmarks/**
 input
 resources
 data/
