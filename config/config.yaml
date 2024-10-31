@@ -3,10 +3,14 @@ input_dir: "data"
 output_dir: "results"
 figure_dir: "figures"
 table_dir: "table"
+condition_column: "group" # 分组信息列名
+ctrol_column: "CNL" # 对照组列名
+treat_column: "CCL" # 处理组列名
 
 # 环境配置
 env:
   conda: "lang"
+  pertpy: "../envs/pertpy_env.yaml"
 
 # 质量控制参数
 quality_control:
@@ -36,7 +40,7 @@ batch_removal:
   n_top_pcs: 10 # just for harmony
   n_neighbors: 15
   methods:
-    - scvi
+    # - scvi
     - harmony
 
 cluster:

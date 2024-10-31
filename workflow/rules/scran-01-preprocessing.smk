@@ -290,7 +290,7 @@ rule find_markers:
 
 
 # expand 是生成所有可能的参数组合，笛卡尔积
-rule preprocessing:
+checkpoint preprocessing:
     input:
         # 包含所有批次效应去除方法和注释方法的组合
         expand(
@@ -298,6 +298,42 @@ rule preprocessing:
             method=config["batch_removal"]["methods"],
             anno_type=config["cell_annotation"]["anno_type"],
             group_by=config["cell_annotation"]["anno_type"] + ["leiden_0_25"],
+        ),
+
+
+rule augur_prioritization:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path("augur", "anndata_augur_{method}_{anno_type}.h5ad"),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=FIGURE_DIR,
+        table_dir=TABLE_DIR,
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        ctrol_label=config["ctrol_column"],
+        treat_label=config["treat_column"],
+    log:
+        get_log_path("augur_{method}_{anno_type}.log"),
+    conda:
+        config["env"]["pertpy"]
+    benchmark:
+        get_benchmark_path("augur_{method}_{anno_type}.txt")
+    script:
+        "../scripts/single_cell_10_augur.py"
+
+
+# snakemake augur_run --use-conda
+rule augur_run:
+    input:
+        expand(
+            "results/augur/anndata_augur_{method}_{anno_type}.h5ad",
+            method=config["batch_removal"]["methods"],
+            anno_type=config["cell_annotation"]["anno_type"],
         ),
 
 
