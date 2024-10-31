@@ -4,8 +4,11 @@ output_dir: "results"
 figure_dir: "figures"
 table_dir: "table"
 condition_column: "group" # 分组信息列名
+sample_group_column: "patients_organ" # 样本信息列名
 ctrol_column: "CNL" # 对照组列名
 treat_column: "CCL" # 处理组列名
+input_file_list:
+  - "data/adata_raw.h5ad" # 初始输入文件
 
 # 环境配置
 env:

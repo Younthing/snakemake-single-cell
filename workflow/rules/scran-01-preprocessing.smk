@@ -290,7 +290,7 @@ rule find_markers:
 
 
 # expand 是生成所有可能的参数组合，笛卡尔积
-checkpoint preprocessing:
+rule preprocessing:
     input:
         # 包含所有批次效应去除方法和注释方法的组合
         expand(
@@ -299,6 +299,36 @@ checkpoint preprocessing:
             anno_type=config["cell_annotation"]["anno_type"],
             group_by=config["cell_annotation"]["anno_type"] + ["leiden_0_25"],
         ),
+
+
+rule differential_abundance:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "differential_abundance",
+            "anndata_differential_abundance_{method}_{anno_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=FIGURE_DIR,
+        table_dir=TABLE_DIR,
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=config["ctrol_column"],
+        treat_label=config["treat_column"],
+    log:
+        get_log_path("differential_abundance_{method}_{anno_type}.log"),
+    conda:
+        config["env"]["pertpy"]
+    benchmark:
+        get_benchmark_path("differential_abundance_{method}_{anno_type}.txt")
+    script:
+        "../scripts/single_cell_09_differential_abundance.py"
 
 
 rule augur_prioritization:
@@ -331,10 +361,26 @@ rule augur_prioritization:
 rule augur_run:
     input:
         expand(
+            "results/find_markers/anndata_find_markers_{group_by}_{method}_{anno_type}.h5ad",
+            method=config["batch_removal"]["methods"],
+            anno_type=config["cell_annotation"]["anno_type"],
+            group_by=config["cell_annotation"]["anno_type"] + ["leiden_0_25"],
+        ),
+        # 邻域细胞丰富检验 
+        expand(
+            "results/differential_abundance/anndata_differential_abundance_{method}_{anno_type}.h5ad",
+            method=config["batch_removal"]["methods"],
+            anno_type=config["cell_annotation"]["anno_type"],
+        ),
+        # 细胞类型优先级
+        expand(
             "results/augur/anndata_augur_{method}_{anno_type}.h5ad",
             method=config["batch_removal"]["methods"],
             anno_type=config["cell_annotation"]["anno_type"],
         ),
+        # 差异分析
+        
+        # GSVA
 
 
 #  group_by=[
