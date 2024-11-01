@@ -314,8 +314,8 @@ sns.scatterplot(
 axes[1].set_title("Scatterplot 2")
 
 plt.tight_layout()  # 自动调整子图参数，使之填充整个图像区域
-plt.savefig(f"{figure_dir}/01-质控-诊断图-py.pdf")
-plt.savefig(f"{figure_dir}/01-质控-诊断图-py.tiff")
+plt.savefig(f"{figure_dir}/01-quality_control.pdf")
+plt.savefig(f"{figure_dir}/01-quality_control.tiff")
 plt.show()
 
 # %%

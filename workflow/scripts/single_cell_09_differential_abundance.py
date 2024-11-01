@@ -130,10 +130,16 @@ milo.build_nhood_graph(mdata)
 plt.rcParams["figure.figsize"] = [7, 7]
 milo.plot_nhood_graph(
     mdata,
-    alpha=0.1,  ## SpatialFDR level (1%)
+    alpha=1,  ## SpatialFDR level (1%)
     min_size=1,  ## Size of smallest dot
+    save=f"{unique_prefix}.pdf",
 )
+import shutil
 
+shutil.move(
+    f"{figure_dir}/X_milo_graph{unique_prefix}.pdf",
+    f"{figure_dir}/09-{unique_prefix}-milo_gra.pdf",
+)
 # %%
 
 # 注释邻域（按照主要的细胞类型）

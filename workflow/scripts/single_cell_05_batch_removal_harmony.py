@@ -68,7 +68,9 @@ sc.pl.pca_variance_ratio(
 )
 import shutil
 
-shutil.move(f"{figure_dir}/pca_variance_ratio.pdf", f"{figure_dir}/05-pca-方差占比.pdf")
+shutil.move(
+    f"{figure_dir}/pca_variance_ratio.pdf", f"{figure_dir}/05-pca_variance_ratio.pdf"
+)
 
 # %%
 ## 5.4.2 Harmony

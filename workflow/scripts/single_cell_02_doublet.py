@@ -71,8 +71,8 @@ sns.scatterplot(
 )
 
 plt.tight_layout()
-plt.savefig(f"{figure_dir}/02-校正-双连体.pdf")
-plt.savefig(f"{figure_dir}/02-校正-双连体.tiff", dpi=600)
+plt.savefig(f"{figure_dir}/02-doublet_removal.pdf")
+plt.savefig(f"{figure_dir}/02-doublet_removal.tiff", dpi=600)
 plt.show()
 
 # %%

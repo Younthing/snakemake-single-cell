@@ -82,7 +82,7 @@ axes[0].set_title("Total counts")
 p2 = sns.histplot(adata.layers["log1p_norm"].sum(1), bins=100, kde=False, ax=axes[1])
 axes[1].set_title("Shifted logarithm")
 plt.tight_layout()
-plt.savefig(f"{figure_dir}/03-基本对数标准化.pdf")
+plt.savefig(f"{figure_dir}/03-normalization.pdf")
 plt.show()
 
 # Save the filtered data
