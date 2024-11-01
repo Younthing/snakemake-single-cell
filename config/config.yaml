@@ -6,7 +6,6 @@ input_file_list:
   - data/adata_raw_LNL_LCL.h5ad
 # LCL 肝转移 (LM)
 # CCL 原发性结直肠癌 (CC)
-# PBL 对应于外周血 (PB)
 # LNL 邻近正常肝组织 (LN)
 # CNL 邻近正常结直肠粘膜 (CN)
 samples:

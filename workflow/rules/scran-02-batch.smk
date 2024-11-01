@@ -364,6 +364,170 @@ rule differential_expression:
         "../scripts/single_cell_11_differential_expression.py"
 
 
+rule aucell_by_group:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "{sample}",
+            "aucell_by_group",
+            "anndata_aucell_by_group_{method}_{anno_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=get_output_path("{sample}", config["figure_dir"]),
+        table_dir=get_output_path("{sample}", config["table_dir"]),
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=lambda wildcards: config["samples"][wildcards.sample][
+            "control_label"
+        ],
+        treat_label=lambda wildcards: config["samples"][wildcards.sample][
+            "treatment_label"
+        ],
+    log:
+        get_log_path(
+            "{sample}",
+            "aucell_by_group_{method}_{anno_type}.log",
+        ),
+    conda:
+        config["env"]["pertpy"]
+    benchmark:
+        get_benchmark_path(
+            "{sample}",
+            "aucell_by_group_{method}_{anno_type}.txt",
+        )
+    script:
+        "../scripts/single_cell_12_aucell_by_group.py"
+
+
+rule gsva_by_group:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "{sample}",
+            "gsva_by_group",
+            "anndata_gsva_by_group_{method}_{anno_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=get_output_path("{sample}", config["figure_dir"]),
+        table_dir=get_output_path("{sample}", config["table_dir"]),
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=lambda wildcards: config["samples"][wildcards.sample][
+            "control_label"
+        ],
+        treat_label=lambda wildcards: config["samples"][wildcards.sample][
+            "treatment_label"
+        ],
+    log:
+        get_log_path(
+            "{sample}",
+            "gsva_by_group_{method}_{anno_type}.log",
+        ),
+    conda:
+        config["env"]["pertpy"]
+    benchmark:
+        get_benchmark_path(
+            "{sample}",
+            "gsva_by_group_{method}_{anno_type}.txt",
+        )
+    script:
+        "../scripts/single_cell_13_gsva_by_group.py"
+
+
+rule cellchat_condition:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "{sample}",
+            "cellchat_condition",
+            "anndata_cellchat_condition_{method}_{anno_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=get_output_path("{sample}", config["figure_dir"]),
+        table_dir=get_output_path("{sample}", config["table_dir"]),
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=lambda wildcards: config["samples"][wildcards.sample][
+            "control_label"
+        ],
+        treat_label=lambda wildcards: config["samples"][wildcards.sample][
+            "treatment_label"
+        ],
+    log:
+        get_log_path(
+            "{sample}",
+            "cellchat_condition_{method}_{anno_type}.log",
+        ),
+    conda:
+        config["env"]["conda"]
+    benchmark:
+        get_benchmark_path(
+            "{sample}",
+            "cellchat_condition_{method}_{anno_type}.txt",
+        )
+    script:
+        "../scripts/single_cell_14_cellchat_condition.py"
+
+
+rule tf_activity:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "{sample}",
+            "tf_activity",
+            "anndata_tf_activity_{method}_{anno_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=get_output_path("{sample}", config["figure_dir"]),
+        table_dir=get_output_path("{sample}", config["table_dir"]),
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=lambda wildcards: config["samples"][wildcards.sample][
+            "control_label"
+        ],
+        treat_label=lambda wildcards: config["samples"][wildcards.sample][
+            "treatment_label"
+        ],
+    log:
+        get_log_path(
+            "{sample}",
+            "tf_activity_{method}_{anno_type}.log",
+        ),
+    conda:
+        config["env"]["pertpy"]
+    benchmark:
+        get_benchmark_path(
+            "{sample}",
+            "tf_activity_{method}_{anno_type}.txt",
+        )
+    script:
+        "../scripts/single_cell_15_tf_activity.py"
+
+
 # 使用expand生成所有样本的所有组合# 使用 expand 生成所有样本的所有组合
 BATCH_METHODS = config["batch_removal"]["methods"]
 ANNO_TYPES = config["cell_annotation"]["anno_type"]
@@ -420,6 +584,30 @@ rule all:
         ),
         expand(
             "results/{sample}/differential_expression/anndata_differential_expression_{method}_{anno_type}.h5ad",
+            sample=SAMPLES,
+            method=BATCH_METHODS,
+            anno_type=ANNO_TYPES,
+        ),
+        expand(
+            "results/{sample}/aucell_by_group/anndata_aucell_by_group_{method}_{anno_type}.h5ad",
+            sample=SAMPLES,
+            method=BATCH_METHODS,
+            anno_type=ANNO_TYPES,
+        ),
+        expand(
+            "results/{sample}/gsva_by_group/anndata_gsva_by_group_{method}_{anno_type}.h5ad",
+            sample=SAMPLES,
+            method=BATCH_METHODS,
+            anno_type=ANNO_TYPES,
+        ),
+        expand(
+            "results/{sample}/cellchat_condition/anndata_cellchat_condition_{method}_{anno_type}.h5ad",
+            sample=SAMPLES,
+            method=BATCH_METHODS,
+            anno_type=ANNO_TYPES,
+        ),
+        expand(
+            "results/{sample}/tf_activity/anndata_tf_activity_{method}_{anno_type}.h5ad",
             sample=SAMPLES,
             method=BATCH_METHODS,
             anno_type=ANNO_TYPES,
