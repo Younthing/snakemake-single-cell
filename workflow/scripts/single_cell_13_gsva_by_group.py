@@ -29,7 +29,7 @@ sys.stdout = open(log_file, "w")
 sc.settings.figdir = figure_dir
 
 
-def setup_scanpy_params(n_jobs: int = -1, verbosity: int = 0) -> None:
+def setup_scanpy_params(n_jobs: int = 128, verbosity: int = 0) -> None:
     mpl.rcParams["pdf.fonttype"] = 42
     sc.settings.verbosity = verbosity
     sc.settings.n_jobs = n_jobs
@@ -81,19 +81,21 @@ from scipy.sparse import csc_matrix
 raw = adata.raw.to_adata()
 raw.X = adata.raw.X.astype(np.float32).tocsr().toarray()
 adata.raw = raw.copy()
-adata
 
 # %%
-# Retrieving via python
-msigdb = dc.get_resource("MSigDB")
-msigdb["collection"].unique().tolist()
-# Get reactome pathways
-hallmark = msigdb.query("collection == 'hallmark'")
-# Filter duplicates
-hallmark = hallmark[~hallmark.duplicated(("geneset", "genesymbol"))]
+# # Retrieving via python
+# msigdb = dc.get_resource("MSigDB")
+# msigdb["collection"].unique().tolist()
+# # Get reactome pathways
+# hallmark = msigdb.query("collection == 'hallmark'")
+# # Filter duplicates
+# hallmark = hallmark[~hallmark.duplicated(("geneset", "genesymbol"))]
+import pandas as pd
+
+hallmark = pd.read_csv(f"{snakemake.params.resources_dir}/MSigDB-hallmark.csv")
 
 # %%
-msigdb.head()
+hallmark.head()
 
 # %%
 # 这玩意不支持稀疏矩阵

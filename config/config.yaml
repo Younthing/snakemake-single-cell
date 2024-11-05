@@ -27,6 +27,7 @@ input_dir: "data"
 output_dir: "results"
 figure_dir: "figures"
 table_dir: "table"
+resources_dir: "resources"
 condition_column: "group" # 分组信息列名
 sample_group_column: "patients_organ" # 样本信息列名
 ctrol_column: "CNL" # 对照组列名
@@ -107,3 +108,20 @@ find_markers:
     ncols: 2
     wspace: 0.2
     # legend_loc: "on data"
+
+nmf_subtype:
+  sub_cell_types:
+    [
+      "T cells",
+      "Macrophages",
+      "Mast cells",
+      "DC",
+      "pDC",
+      "B cells",
+      "ILC",
+      "Plasma cells",
+    ]
+
+cell_polarization:
+  immunology_dict: resources/41586_2023_6816_MOESM5_ESM.xlsx
+

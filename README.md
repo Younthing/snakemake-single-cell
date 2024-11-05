@@ -16,4 +16,10 @@ snakemake --dag | dot -Tpdf > dag.pdf
 
 snakemake --rulegraph | dot -Tpdf > rulegraph.pdf
 
-snakemake --filegraph | dot -Tpdf > filegraph.pdf
+snakemake --filegraph | dot -Tpdf > filegraph.pdf ##
+
+
+
+
+snakemake -n
+snakemake --export-cwl workflow.cwl

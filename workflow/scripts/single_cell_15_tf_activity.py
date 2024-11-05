@@ -5,6 +5,7 @@ import warnings
 import decoupler as dc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import pandas as pd
 import scanpy as sc
 
 # 忽略警告
@@ -12,8 +13,6 @@ warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
 os.environ["PYTHONWARNINGS"] = "ignore"
 
-os.environ["http_proxy"] = ""
-os.environ["https_proxy"] = ""
 # 从 Snakemake 获取参数
 unique_prefix = snakemake.params.unique_prefix
 input_file = snakemake.input[0]
@@ -71,7 +70,6 @@ for col in required_columns:
 
 # 过滤数据
 adata = adata[adata.obs[GROUPs_COL] == STIM].copy()
-
 # 检查过滤后是否还有数据
 if adata.n_obs == 0:
     raise ValueError(f"No cells remaining after filtering for {STIM}")
@@ -118,35 +116,85 @@ def visualize_tf_activities(acts, genes=None, groupby=ANNO_COL):
     if not genes:
         raise ValueError("No valid genes to visualize")
 
-    sc.pl.umap(acts, color=genes + [groupby], cmap="RdBu_r", vcenter=0)
-    sc.pl.violin(acts, keys=genes, groupby=groupby, rotation=45)
+    # 保存 UMAP 图
+    axes = sc.pl.umap(
+        acts, color=genes + [groupby], cmap="RdBu_r", vcenter=0, show=False
+    )
+    fig1 = axes[0].figure
+    fig1.savefig(
+        os.path.join(figure_dir, f"15-{unique_prefix}_umap_plot.pdf"),
+        bbox_inches="tight",
+        dpi=300,
+    )
+    plt.close(fig1)
+
+    # 保存小提琴图
+    fig2, ax = plt.subplots()
+    ax = sc.pl.violin(acts, keys=genes, groupby=groupby, rotation=45, ax=ax, show=False)
+    fig2.savefig(
+        os.path.join(figure_dir, f"15-{unique_prefix}_violin_plot.pdf"),
+        bbox_inches="tight",
+        dpi=300,
+    )
+    plt.close(fig2)
 
 
-def rank_and_extract_top_markers(acts, groupby=ANNO_COL, n_markers=3):
-    """确定每个细胞类型的顶级转录因子"""
+def extract_top_markers_by_pvalue(
+    acts, net, groupby=ANNO_COL, n_markers=3, max_pval=0.05
+):
+    """根据 p 值提取每个细胞类型的顶级转录因子"""
     if groupby not in acts.obs.columns:
         raise ValueError(f"Groupby column {groupby} not found in data")
 
-    df = dc.rank_sources_groups(
-        acts, groupby=groupby, reference="rest", method="t-test_overestim_var"
+    available_tfs = set(net["source"].unique())
+    common_tfs = [tf for tf in acts.var_names if tf in available_tfs]
+    if not common_tfs:
+        raise ValueError(
+            "No transcription factors found in both activity matrix and network"
+        )
+
+    print(
+        f"Found {len(common_tfs)} transcription factors in both activity matrix and network"
     )
 
-    source_markers = (
-        df.groupby("group")
+    # 执行差异分析
+    df = dc.rank_sources_groups(
+        acts[:, common_tfs],
+        groupby=groupby,
+        reference="rest",
+        method="wilcoxon",
+    )
+
+    # 根据最大 p 值过滤
+    df = df[df["pvals"] < max_pval].copy()
+
+    if df.empty:
+        warnings.warn("No significant transcription factors found")
+        return {}
+
+    # 按 p 值排序并选择顶级标记
+    top_markers = (
+        df.sort_values("pvals")
+        .groupby("group")
         .head(n_markers)
         .groupby("group")["names"]
-        .apply(lambda x: list(x))
+        .apply(list)
         .to_dict()
     )
-    return source_markers
+
+    if not top_markers:
+        warnings.warn("No markers found for any group")
+    else:
+        print("Found markers per group:", top_markers)
+
+    return top_markers
 
 
-def plot_tf_network(net, n_sources=None, n_targets=15):
+def plot_tf_network(net, n_sources=None, n_targets=15, save=None):
     """绘制网络图"""
     if n_sources is None:
         n_sources = ["PAX5", "EBF1", "RFXAP"]
 
-    # 检查指定的转录因子是否存在于网络中
     missing_tfs = [tf for tf in n_sources if tf not in net["source"].unique()]
     if missing_tfs:
         warnings.warn(f"Transcription factors not found in network: {missing_tfs}")
@@ -159,34 +207,47 @@ def plot_tf_network(net, n_sources=None, n_targets=15):
         net=net,
         n_sources=n_sources,
         n_targets=n_targets,
-        node_size=100,
+        node_size=25,
         s_cmap="white",
         t_cmap="white",
         c_pos_w="darkgreen",
         c_neg_w="darkred",
-        figsize=(5, 5),
-        save=".pdf",
+        figsize=(8, 8),
+        save=save,
     )
 
 
 try:
-    # 执行主要分析流程
     run_ulm_inference(adata, net)
     acts = get_tf_activities(adata)
     visualize_tf_activities(acts)
-    source_markers = rank_and_extract_top_markers(acts)
-    plot_tf_network(net, source_markers)
+    source_markers = extract_top_markers_by_pvalue(acts, net, ANNO_COL)
+    plot_tf_network(
+        net,
+        # source_markers,
+        save=os.path.join(figure_dir, f"15-{unique_prefix}_tf_network.pdf"),
+    )
 
-    # 保存完成状态
+    # 保存 ULM 估计值和 p 值到 CSV
+    estimate_df = pd.DataFrame(
+        adata.obsm["collectri_ulm_estimate"], index=adata.obs_names
+    )
+    estimate_df.to_csv(
+        os.path.join(table_dir, f"15-{unique_prefix}-tf_activity-ulm_estimates.csv")
+    )
+
+    pvals_df = pd.DataFrame(adata.obsm["collectri_ulm_pvals"], index=adata.obs_names)
+    pvals_df.to_csv(
+        os.path.join(table_dir, f"15-{unique_prefix}-tf_activity-ulm_pvals.csv")
+    )
+
     with open(output_file, mode="wt") as f:
         f.write("Analysis completed successfully.")
 except Exception as e:
-    # 记录错误并确保失败状态被保存
     error_message = f"Analysis failed: {str(e)}"
     with open(output_file, mode="wt") as f:
         f.write(error_message)
     raise RuntimeError(error_message)
 finally:
-    # 确保日志文件被正确关闭
     sys.stderr.close()
     sys.stdout.close()

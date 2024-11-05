@@ -114,7 +114,7 @@ def plot_communication_results(adata_stim, output_prefix):
         orderby="lr_means",
         orderby_ascending=False,
         top_n=20,
-        figure_size=(14, 8),
+        figure_size=(17, 8),
         size_range=(1, 5),
     )
     dotplot_1.save(f"{figure_dir}/14-{output_prefix}_{STIM}-cellphonedb-dotplot.pdf")
@@ -133,7 +133,7 @@ def plot_communication_results(adata_stim, output_prefix):
         orderby="magnitude_rank",
         orderby_ascending=True,
         top_n=20,
-        figure_size=(14, 8),
+        figure_size=(17, 8),
         size_range=(1, 5),
     )
     dotplot_liana.save(f"{figure_dir}/14-{output_prefix}_{STIM}-liana-dotplot.pdf")

@@ -420,6 +420,7 @@ rule gsva_by_group:
         ),
         figure_dir=get_output_path("{sample}", config["figure_dir"]),
         table_dir=get_output_path("{sample}", config["table_dir"]),
+        resources_dir=config["resources_dir"],
         plot_params=config["cell_annotation"]["plot_params"],
         cell_type=lambda wildcards: wildcards.anno_type,
         condition_column=config["condition_column"],
@@ -430,6 +431,9 @@ rule gsva_by_group:
         treat_label=lambda wildcards: config["samples"][wildcards.sample][
             "treatment_label"
         ],
+    resources:
+        threads=128,
+        mem_mb=450000,  # 450 GB
     log:
         get_log_path(
             "{sample}",
@@ -528,9 +532,56 @@ rule tf_activity:
         "../scripts/single_cell_15_tf_activity.py"
 
 
+rule nmf_subtype:
+    input:
+        adata=rules.cell_annotation.output.adata,
+    output:
+        adata=get_output_path(
+            "{sample}",
+            "nmf_subtype",
+            "anndata_nmf_subtype_{method}_{anno_type}_{sub_cell_type}.h5ad",
+        ),
+    params:
+        unique_prefix=lambda wildcards: "_".join(
+            str(wildcards[name]) for name in wildcards.keys()
+        ),
+        figure_dir=get_output_path("{sample}", config["figure_dir"]),
+        table_dir=get_output_path("{sample}", config["table_dir"]),
+        plot_params=config["cell_annotation"]["plot_params"],
+        cell_type=lambda wildcards: wildcards.anno_type,
+        sub_cell_type=lambda wildcards: wildcards.sub_cell_type,
+        condition_column=config["condition_column"],
+        sample_group_column=config["sample_group_column"],
+        ctrol_label=lambda wildcards: config["samples"][wildcards.sample][
+            "control_label"
+        ],
+        treat_label=lambda wildcards: config["samples"][wildcards.sample][
+            "treatment_label"
+        ],
+    log:
+        get_log_path(
+            "{sample}",
+            "nmf_subtype_{method}_{anno_type}_{sub_cell_type}.log",
+        ),
+    conda:
+        "mag"
+    benchmark:
+        get_benchmark_path(
+            "{sample}",
+            "nmf_subtype_{method}_{anno_type}_{sub_cell_type}.txt",
+        )
+    script:
+        "../scripts/single_cell_16_nmf_subtype.py"
+
+
+# notebook:
+#     "../notebooks/33-单细胞转录因子推断-decouper.ipynb"
+
+
 # 使用expand生成所有样本的所有组合# 使用 expand 生成所有样本的所有组合
 BATCH_METHODS = config["batch_removal"]["methods"]
 ANNO_TYPES = config["cell_annotation"]["anno_type"]
+SUB_CELL_TYPES = config["nmf_subtype"]["sub_cell_types"]
 
 
 rule all:
@@ -611,4 +662,11 @@ rule all:
             sample=SAMPLES,
             method=BATCH_METHODS,
             anno_type=ANNO_TYPES,
+        ),
+        expand(
+            "results/{sample}/nmf_subtype/anndata_nmf_subtype_{method}_{anno_type}_{sub_cell_type}.h5ad",
+            sample=SAMPLES,
+            method=BATCH_METHODS,
+            anno_type=ANNO_TYPES,
+            sub_cell_type=SUB_CELL_TYPES,
         ),
